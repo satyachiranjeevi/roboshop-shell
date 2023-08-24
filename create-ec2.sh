@@ -18,7 +18,7 @@ do
         INSTANCE_TYPE="t2.micro"
     fi
     echo "creating $item instance...."
-    IP_ADDRESS=aws ec2 run-instances --image-id $IMAGE_ID --instance-type $INSTANCE_TYPE --security-group-ids $SECURITY_GROUP_ID --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=$item}]" | jq -r '.Instances[0].PrivateIpAddress'
+    IP_ADDRESS=$(aws ec2 run-instances --image-id $IMAGE_ID --instance-type $INSTANCE_TYPE --security-group-ids $SECURITY_GROUP_ID --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=$item}]" | jq -r '.Instances[0].PrivateIpAddress')
 
     if [ $? -ne 0 ]
     then
