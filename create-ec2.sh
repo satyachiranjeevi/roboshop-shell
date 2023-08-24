@@ -11,7 +11,7 @@ SECURITY_GROUP_ID=sg-08aad2e7512ca2cf6
 
 for item in "${NAMES[@]}"
 do
-    if [ [ $item == "mongodb" || $item == "mysql" ] ]
+    if [[ $item == "mongodb" || $item == "mysql" ]]
     then
         INSTANCE_TYPE="t3.micro"
     else
