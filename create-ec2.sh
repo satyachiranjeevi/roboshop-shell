@@ -4,6 +4,7 @@ NAMES=("mongodb" "redis" "mysql" "rabbitmq" "catalogue" "user" "cart" "shipping"
 INSTANCE_TYPE=""
 IMAGE_ID=ami-03265a0778a880afb
 SECURITY_GROUP_ID=sg-08aad2e7512ca2cf6
+DOMAIN_NAME=devopsbysatya.online
 
 
 # if mongodb, mysql then instance type should be t3.micro for rest all its t2.micro
@@ -27,4 +28,20 @@ do
     else
         echo "instance $item creation was succesful. IP Address : $IP_ADDRESS"
     fi
+
+    #Creating route53 records
+
+    aws route53 change-resource-record-sets --hosted-zone-id Z10298813V83SXKO4UHC7 --change-batch '
+    {
+                "Comment": "CREATE/DELETE/UPSERT a record ",
+                "Changes": [{
+                "Action": "CREATE",
+                            "ResourceRecordSet": {
+                                        "Name": "'$item.$DOMAIN_NAME'",
+                                        "Type": "A",
+                                        "TTL": 1,
+                                    "ResourceRecords": [{ "Value": "'$IP_ADDRESS'"}]
+    }}]
+    }
+    '
 done
