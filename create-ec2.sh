@@ -18,6 +18,13 @@ do
         INSTANCE_TYPE="t2.micro"
     fi
     echo "creating $item instance...."
-    aws ec2 run-instances --image-id $IMAGE_ID --instance-type $INSTANCE_TYPE --security-group-ids 
-    $SECURITY_GROUP_ID --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=$item}]"
+    IP_ADDRESS=aws ec2 run-instances --image-id $IMAGE_ID --instance-type $INSTANCE_TYPE --security-group-ids $SECURITY_GROUP_ID --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=$item}]" | jq -r '.Instances[0].PrivateIpAddress'
+
+    if [ $? -ne 0 ]
+    then
+        echo "Instance $item creation failed"
+        exit 1
+    else
+        echo "instance $item creation was succesful. IP Address : $IP_ADDRESS"
+    fi
 done
