@@ -73,9 +73,11 @@ unzip /tmp/shipping.zip &>> $LOGFILE
 
 VALIDATE $? "unzip shipping in app folder"
 
-mvn clean package
+mvn clean package &>> $LOGFILE
 
-mv target/shipping-1.0.jar shipping.jar
+mv target/shipping-1.0.jar shipping.jar &>> $LOGFILE
+
+cp /root/roboshop-shell/shipping.service /etc/systemd/system/shipping.service &>> $LOGFILE
 
 systemctl daemon-reload &>> $LOGFILE
 
