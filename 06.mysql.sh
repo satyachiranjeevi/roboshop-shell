@@ -38,6 +38,10 @@ yum module disable mysql -y &>> $LOGFILE
 
 VALIDATE $? "disable mysql"
 
+cp /root/roboshop-shell/mysql.repo /etc/yum.repos.d/mysql.repo &>> $LOGFILE
+
+VALIDATE $? "Copying MySQL repo" 
+
 yum install mysql-community-server -y &>> $LOGFILE
 
 VALIDATE $? "install mysql"
