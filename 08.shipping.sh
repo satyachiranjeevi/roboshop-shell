@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#Install catalogue service on Linux ec2 instance
+#Install shipping service on Linux ec2 instance
 
 USERID=$(id -u)
 
@@ -34,16 +34,11 @@ VALIDATE()
     fi
 }
 
-#==================
+#=========================================================
 
-curl -sL https://rpm.nodesource.com/setup_lts.x | bash &>> $LOGFILE
+yum install maven -y &>> $LOGFILE
 
-VALIDATE $? "setting up node js repos"
-
-yum install nodejs -y &>> $LOGFILE
-
-VALIDATE $? "install nodejs"
-
+VALIDATE $? "install maven"
 
 #Check if user roboshop already exists
 id -u roboshop
@@ -66,46 +61,42 @@ else
     VALIDATE $? "create app dir"
 fi
 
-curl -o /tmp/catalogue.zip https://roboshop-artifacts.s3.amazonaws.com/catalogue.zip &>> $LOGFILE
+curl -o /tmp/shipping.zip https://roboshop-artifacts.s3.amazonaws.com/shipping.zip &>> $LOGFILE
 
-VALIDATE $? "download catalogue.zip"
+VALIDATE $? "download shipping.zip"
 
 cd /app &>> $LOGFILE
 
 VALIDATE $? "move to app dir"
 
-unzip /tmp/catalogue.zip &>> $LOGFILE
+unzip /tmp/shipping.zip &>> $LOGFILE
 
-VALIDATE $? "unzip catalogue in app folder"
+VALIDATE $? "unzip shipping in app folder"
 
-npm install &>> $LOGFILE
+mvn clean package
 
-VALIDATE $? "install npm packages"
-
-cp /root/roboshop-shell/catalogue.service /etc/systemd/system/catalogue.service &>>$LOGFILE
-
-VALIDATE $? "copy catalogue.service file"
+mv target/shipping-1.0.jar shipping.jar
 
 systemctl daemon-reload &>> $LOGFILE
 
 VALIDATE $? "daemon-reload"
 
-systemctl enable catalogue &>> $LOGFILE
+systemctl enable shipping &>> $LOGFILE
 
-VALIDATE $? "enable catalogue"
+VALIDATE $? "enable shipping"
 
-systemctl start catalogue &>> $LOGFILE
+systemctl start shipping &>> $LOGFILE
 
-VALIDATE $? "start catalogue"
+VALIDATE $? "start shipping"
 
-cp /root/roboshop-shell/mongo.repo /etc/yum.repos.d/mongo.repo &>> $LOGFILE
+yum install mysql -y &>> $LOGFILE
 
-VALIDATE $? "copy mongo repo into yum.repos.d"
+VALIDATE $? "install mysql"
 
-yum install mongodb-org-shell -y &>> $LOGFILE
+mysql -h mysql.devopsbysatya.online -uroot -pRoboShop@1 < /app/schema/shipping.sql &>> $LOGFILE
 
-VALIDATE $? "install mongodb shell"
+VALIDATE $? "load schema into mysql"
 
-mongo --host mongodb.devopsbysatya.online < /app/schema/catalogue.js &>> $LOGFILE
+systemctl restart shipping &>> $LOGFILE
 
-VALIDATE $? "loading schema into mongodb"
+VALIDATE $? "restart shipping"

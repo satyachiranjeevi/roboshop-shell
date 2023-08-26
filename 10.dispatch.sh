@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#Install catalogue service on Linux ec2 instance
+#Install dispatch service on Linux ec2 instance
 
 USERID=$(id -u)
 
@@ -34,16 +34,9 @@ VALIDATE()
     fi
 }
 
-#==================
+yum install golang -y &>> $LOGFILE
 
-curl -sL https://rpm.nodesource.com/setup_lts.x | bash &>> $LOGFILE
-
-VALIDATE $? "setting up node js repos"
-
-yum install nodejs -y &>> $LOGFILE
-
-VALIDATE $? "install nodejs"
-
+VALIDATE $? "install golang"
 
 #Check if user roboshop already exists
 id -u roboshop
@@ -66,46 +59,40 @@ else
     VALIDATE $? "create app dir"
 fi
 
-curl -o /tmp/catalogue.zip https://roboshop-artifacts.s3.amazonaws.com/catalogue.zip &>> $LOGFILE
+#===========================================
 
-VALIDATE $? "download catalogue.zip"
+curl -o /tmp/dispatch.zip https://roboshop-artifacts.s3.amazonaws.com/dispatch.zip &>> $LOGFILE
+
+VALIDATE $? "download dispatch.zip"
 
 cd /app &>> $LOGFILE
 
 VALIDATE $? "move to app dir"
 
-unzip /tmp/catalogue.zip &>> $LOGFILE
+unzip /tmp/dispatch.zip &>> $LOGFILE
 
-VALIDATE $? "unzip catalogue in app folder"
+VALIDATE $? "unzip dispatch in app folder"
 
-npm install &>> $LOGFILE
+go mod init dispatch &>> $LOGFILE
 
-VALIDATE $? "install npm packages"
+VALIDATE $? "go init"
 
-cp /root/roboshop-shell/catalogue.service /etc/systemd/system/catalogue.service &>>$LOGFILE
+go get &>> $LOGFILE
 
-VALIDATE $? "copy catalogue.service file"
+VALIDATE $? "go get"
+
+go build &>> $LOGFILE
+
+VALIDATE $? "go build"
 
 systemctl daemon-reload &>> $LOGFILE
 
 VALIDATE $? "daemon-reload"
 
-systemctl enable catalogue &>> $LOGFILE
+systemctl enable dispatch &>> $LOGFILE
 
-VALIDATE $? "enable catalogue"
+VALIDATE $? "enable dispatch"
 
-systemctl start catalogue &>> $LOGFILE
+systemctl start dispatch &>> $LOGFILE
 
-VALIDATE $? "start catalogue"
-
-cp /root/roboshop-shell/mongo.repo /etc/yum.repos.d/mongo.repo &>> $LOGFILE
-
-VALIDATE $? "copy mongo repo into yum.repos.d"
-
-yum install mongodb-org-shell -y &>> $LOGFILE
-
-VALIDATE $? "install mongodb shell"
-
-mongo --host mongodb.devopsbysatya.online < /app/schema/catalogue.js &>> $LOGFILE
-
-VALIDATE $? "loading schema into mongodb"
+VALIDATE $? "start dispatch"

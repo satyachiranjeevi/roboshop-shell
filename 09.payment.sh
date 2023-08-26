@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#Install catalogue service on Linux ec2 instance
+#Install payments service on Linux ec2 instance
 
 USERID=$(id -u)
 
@@ -34,16 +34,11 @@ VALIDATE()
     fi
 }
 
-#==================
+#=========================================================
 
-curl -sL https://rpm.nodesource.com/setup_lts.x | bash &>> $LOGFILE
+yum install python36 gcc python3-devel -y &>> $LOGFILE
 
-VALIDATE $? "setting up node js repos"
-
-yum install nodejs -y &>> $LOGFILE
-
-VALIDATE $? "install nodejs"
-
+VALIDATE $? "install python"
 
 #Check if user roboshop already exists
 id -u roboshop
@@ -66,46 +61,31 @@ else
     VALIDATE $? "create app dir"
 fi
 
-curl -o /tmp/catalogue.zip https://roboshop-artifacts.s3.amazonaws.com/catalogue.zip &>> $LOGFILE
+curl -o /tmp/payment.zip https://roboshop-artifacts.s3.amazonaws.com/payment.zip &>> $LOGFILE
 
-VALIDATE $? "download catalogue.zip"
+VALIDATE $? "download payment.zip"
 
 cd /app &>> $LOGFILE
 
 VALIDATE $? "move to app dir"
 
-unzip /tmp/catalogue.zip &>> $LOGFILE
+unzip /tmp/payment.zip &>> $LOGFILE
 
-VALIDATE $? "unzip catalogue in app folder"
+VALIDATE $? "unzip payment in app folder"
 
-npm install &>> $LOGFILE
+pip3.6 install -r requirements.txt &>> $LOGFILE
 
-VALIDATE $? "install npm packages"
-
-cp /root/roboshop-shell/catalogue.service /etc/systemd/system/catalogue.service &>>$LOGFILE
-
-VALIDATE $? "copy catalogue.service file"
+VALIDATE $? "install python requirements.txt"
 
 systemctl daemon-reload &>> $LOGFILE
 
 VALIDATE $? "daemon-reload"
 
-systemctl enable catalogue &>> $LOGFILE
+systemctl enable payment &>> $LOGFILE
 
-VALIDATE $? "enable catalogue"
+VALIDATE $? "enable payment"
 
-systemctl start catalogue &>> $LOGFILE
+systemctl start payment &>> $LOGFILE
 
-VALIDATE $? "start catalogue"
+VALIDATE $? "start payment"
 
-cp /root/roboshop-shell/mongo.repo /etc/yum.repos.d/mongo.repo &>> $LOGFILE
-
-VALIDATE $? "copy mongo repo into yum.repos.d"
-
-yum install mongodb-org-shell -y &>> $LOGFILE
-
-VALIDATE $? "install mongodb shell"
-
-mongo --host mongodb.devopsbysatya.online < /app/schema/catalogue.js &>> $LOGFILE
-
-VALIDATE $? "loading schema into mongodb"
