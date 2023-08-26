@@ -85,6 +85,8 @@ go build &>> $LOGFILE
 
 VALIDATE $? "go build"
 
+cp /root/roboshop-shell/dispatch.service /etc/systemd/system/dispatch.service &>> $LOGFILE
+
 systemctl daemon-reload &>> $LOGFILE
 
 VALIDATE $? "daemon-reload"
