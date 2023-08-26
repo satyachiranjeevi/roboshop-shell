@@ -54,9 +54,15 @@ else
     echo -e "$Y user already exists $N"
 fi
 
-mkdir /app &>> $LOGFILE
-
-VALIDATE $? "create app dir"
+#check if app directory is already available or not and then create accordingly
+if [ -d /app ]
+then
+    echo -e "$Y Directory /app already available. $N"
+else
+    echo -e "$R Directory /app not available $N"
+    mkdir /app &>> $LOGFILE
+    VALIDATE $? "create app dir"
+fi
 
 curl -o /tmp/catalogue.zip https://roboshop-artifacts.s3.amazonaws.com/catalogue.zip &>> $LOGFILE
 
