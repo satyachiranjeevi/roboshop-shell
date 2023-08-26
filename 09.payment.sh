@@ -77,6 +77,8 @@ pip3.6 install -r requirements.txt &>> $LOGFILE
 
 VALIDATE $? "install python requirements.txt"
 
+cp /root/roboshop-shell/payment.service /etc/systemd/system/payment.service &>> $LOGFILE
+
 systemctl daemon-reload &>> $LOGFILE
 
 VALIDATE $? "daemon-reload"
