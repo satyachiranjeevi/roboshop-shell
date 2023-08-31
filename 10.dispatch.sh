@@ -98,3 +98,6 @@ VALIDATE $? "enable dispatch"
 systemctl start dispatch &>> $LOGFILE
 
 VALIDATE $? "start dispatch"
+
+
+# tail -f /var/log/messages
