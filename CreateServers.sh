@@ -5,6 +5,7 @@ INSTANCE_TYPE=""
 IMAGE_ID=ami-03265a0778a880afb
 SECURITY_GROUP_ID=sg-08aad2e7512ca2cf6
 DOMAIN_NAME=devopsbysatya.online
+HOSTED_ZONE_ID=Z10298813V83SXKO4UHC7
 
 
 # if mongodb, mysql then instance type should be t3.micro for rest all its t2.micro
@@ -31,7 +32,7 @@ do
 
     #Creating route53 records
 
-    aws route53 change-resource-record-sets --hosted-zone-id Z10298813V83SXKO4UHC7 --change-batch '
+    aws route53 change-resource-record-sets --hosted-zone-id HOSTED_ZONE_ID --change-batch '
     {
                 "Comment": "CREATE/DELETE/UPSERT a record ",
                 "Changes": [{
